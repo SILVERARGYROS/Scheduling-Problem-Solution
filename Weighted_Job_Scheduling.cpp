@@ -81,7 +81,7 @@ int findMaxProfit(Job arr[], int n)
 // Driver program
 int main()
 {
-    Job arr[] = {{0, 2, 5}, {1, 3, 50}, {2, 4, 5}, {3, 5, 1}, {1, 2, 10}, {2, 3, 1}, {3, 4, 10}, {4, 5, 10}};
+    Job arr[] = {{0, 2, 103}, {1, 3, 33}, {2, 4, 203}, {3, 5,507}, {1, 2, 43}, {2, 3, 53}, {3, 4, 67}, {4, 5, 87}};
     int n = sizeof(arr)/sizeof(arr[0]);
     cout << "\nOptimal profit is " << findMaxProfit(arr, n) << "\n";
     return 0;
