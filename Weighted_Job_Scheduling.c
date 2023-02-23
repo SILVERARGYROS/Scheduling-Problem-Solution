@@ -2,7 +2,7 @@
 
 // Solution idea - UoP eClass: Lecture #4 - Dynamic Programming (page 26): https://eclass.uop.gr/modules/document/file.php/3061/Lecture%204.pdf
 // Implementation idea - GeeksforGeeks: Weighted Job Scheduling: https://www.geeksforgeeks.org/weighted-job-scheduling/?ref=lbp
-
+// QuickSort Implementation idea - Tutorialspoint: https://www.tutorialspoint.com/explain-the-quick-sort-technique-in-c-language
 
 // Libraries
 #include <stdio.h>
@@ -10,7 +10,7 @@
 
 // Debug constants
 #define DEBUG 1
-#define WARNINGS_ON 1
+#define CLEAR_SCREEN 1
 #define DEBUG_SORT 1
 #define DEBUG_INDEX 1
 #define DEBUG_CORE_DUMP 1
@@ -45,7 +45,7 @@ void quicksort(Job* job,int first,int last);
 void findSolution(Job* job, int* M, int j);
 
 int main (void){
-    if(WARNINGS_ON){system("tput clear");}
+    if(CLEAR_SCREEN){system("tput clear");}
 
     if(FIXED_EXAMPLE){
         if(DEBUG){printf(GREEN "Loading Fixed Example...\n\n" DEF);}
@@ -173,6 +173,7 @@ int main (void){
 
     free(M);
     free(job);
+    return 0;
 }
 
 int max(int a, int b)
