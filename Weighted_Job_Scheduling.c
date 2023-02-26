@@ -3,18 +3,22 @@
 // Solution idea - UoP eClass: Lecture #4 - Dynamic Programming (page 26): https://eclass.uop.gr/modules/document/file.php/3061/Lecture%204.pdf
 // Implementation idea - GeeksforGeeks: Weighted Job Scheduling: https://www.geeksforgeeks.org/weighted-job-scheduling/?ref=lbp
 // QuickSort Implementation idea - Tutorialspoint: https://www.tutorialspoint.com/explain-the-quick-sort-technique-in-c-language
+// Time capture funtion - GeeksforGeeks: https://www.geeksforgeeks.org/how-to-measure-time-taken-by-a-program-in-c/
 
 // Libraries
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 // Debug constants
-#define DEBUG 1
+#define DEBUG 0
+#define DEBUG_VALUE 0
 #define CLEAR_SCREEN 1
-#define DEBUG_SORT 1
-#define DEBUG_INDEX 1
-#define DEBUG_CORE_DUMP 1
-#define FIXED_EXAMPLE 1
+#define DEBUG_SORT 0
+#define DEBUG_INDEX 0
+#define DEBUG_CORE_DUMP 0
+#define FIXED_EXAMPLE 0
+#define RANDOM_PICK 1
 
 // Color palette, source:https://stackoverflow.com/questions/3585846/color-text-in-terminal-applications-in-unix
 #define RED		"\x1B[31m"
@@ -28,6 +32,10 @@ int* low;
 int* high;
 int i;
 int j;
+clock_t start, end;
+double cpu_time_used;
+int* Set;
+int SetStep = 0;
 
 // Job Structure
 typedef struct Jobs{
@@ -46,6 +54,7 @@ void findSolution(Job* job, int* M, int j);
 
 int main (void){
     if(CLEAR_SCREEN){system("tput clear");}
+    srand(time(NULL));
 
     if(FIXED_EXAMPLE){
         if(DEBUG){printf(GREEN "Loading Fixed Example...\n\n" DEF);}
@@ -82,15 +91,40 @@ int main (void){
         low = (int*)malloc(sizeof(int) * (weeksNumber));
         high = (int*)malloc(sizeof(int) * (weeksNumber));
 
-        for(i = 0; i < weeksNumber; i++)
+        if(RANDOM_PICK)
         {
-            printf("Please enter value of low skill job for week %d: ", i+1);
-            scanf("%d", &low[i]);
+            for(i = 0; i < weeksNumber; i++)
+            {
+                low[i] = rand() % 41 + 10;
+            }
+            for(i = 0; i < weeksNumber; i++)
+            {
+                high[i] = rand() % 41 + 90;
+            }
+
+            // printing the randomly generated job categories
+            for(i = 0; i < weeksNumber; i++)
+            {
+                printf("low[%d] = %d\n", i, low[i]);
+            }
+            printf("\n");
+            for(i = 0; i < weeksNumber; i++)
+            {
+                printf("high[%d] = %d\n", i, high[i]);
+            }
         }
-        for(i = 0; i < weeksNumber; i++)
+        else
         {
-            printf("Please enter value of high skill job for week %d: ", i+1);
-            scanf("%d", &high[i]);
+            for(i = 0; i < weeksNumber; i++)
+            {
+                printf("Please enter value of low skill job for week %d: ", i+1);
+                scanf("%d", &low[i]);
+            }
+            for(i = 0; i < weeksNumber; i++)
+            {
+                printf("Please enter value of high skill job for week %d: ", i+1);
+                scanf("%d", &high[i]);
+            }
         }
     }
 
@@ -122,13 +156,15 @@ int main (void){
 
     if(DEBUG_SORT){printf(RED "\nBefore sort\n");for(i = 0; i < n; i++){printf("job[%d] = %d, %d, %d\n", i, job[i].value,  job[i].start, job[i].finish);}printf("\n" DEF);}
 
+    // Setting up timer to measure execution time of Dikjstra. 
+    start = clock();
+
     // Sorting job array
     quicksort(job, 0, n-1);
 
     if(DEBUG_SORT){printf(RED "After sort\n");for(i = 0; i < n; i++){printf("job[%d] = %d, %d, %d\n", i, job[i].value,  job[i].start, job[i].finish);}printf("\n" DEF);}
 
     if(DEBUG_CORE_DUMP){printf(RED "Debug before core dump 2\n" DEF);}
-
 
     // Saving space from unnecessary arrays
     free(low);
@@ -148,8 +184,7 @@ int main (void){
         int inclVal = job[i].value;
         int p = P(job, i);
 
-        if(DEBUG){printf(GREEN "Debug i = %d\n" DEF, i);}
-        if(DEBUG){printf(GREEN "Debug p = %d\n" DEF, p);}
+        if(DEBUG_VALUE){printf(GREEN "Debug p(%d) = %d\n" DEF, i, p);}
 
         if (p != -1){
             inclVal += M[p];
@@ -166,10 +201,35 @@ int main (void){
     if(DEBUG_CORE_DUMP){printf(RED "Debug before core dump 4\n" DEF);}
 
     int result = M[n-1];
-    printf("\nOptimal Result = %d\n", result);
+   
 
-    // Trace jobs here to find solution
-    // findSolution(job, M, n-1);
+    // Initialize Set array
+    Set = (int*)malloc(sizeof(int)*n);
+
+    // Trace jobs here to find solution Set
+    findSolution(job, M, n-1);
+
+    printf("Optimal Solution: \n");
+    for(i = SetStep-1; i >= 0; i--)
+    {
+        int weekStart;
+        int jobLength = job[Set[i]].finish - job[Set[i]].start;
+
+        if(jobLength == 2)
+        {
+            weekStart = job[Set[i]].start + 1;
+            printf("In week %d, we choose high skill job\n", weekStart);
+        }
+        else
+        {
+            weekStart = job[Set[i]].start;
+            printf("In week %d, we choose low skill job\n", weekStart);
+        }
+    }
+     printf(GREEN "Optimal Result = %d\n" DEF, result);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("\nWeighted Job Scheduling algorithm was successfully executed in %lf seconds.\n", cpu_time_used);
 
     free(M);
     free(job);
@@ -232,20 +292,17 @@ void quicksort(Job* job,int first,int last)
    }
 }
 
-// void findSolution(Job* job, int* M, int j) 
-// {
-//     if (j == 0){
-//         return;
-//     }
-//     else
-//     {
-//         if(job[j].value + M[P(job, j)] > M[j-1]){
-//             printf("j = %d\n", j);
-//             findSolution(job, M, P(job, j));
-//         }
-//         else
-//         {
-//             findSolution(job, M, j-1);
-//         }
-//     }
-// }
+void findSolution(Job* job, int* M, int j) 
+{
+    if (j < 0){
+        return;
+    }
+    else if(job[j].value + M[P(job, j)] > M[j-1]){
+        Set[SetStep++] = j;
+        findSolution(job, M, P(job, j));
+    }
+    else
+    {
+        findSolution(job, M, j-1);
+    }
+}

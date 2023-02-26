@@ -10,6 +10,7 @@
 #define DEBUG_INDEX 1
 #define DEBUG_CORE_DUMP 1
 #define FIXED_EXAMPLE 0
+#define RANDOM_PICK 1
 
 // Color palette, source:https://stackoverflow.com/questions/3585846/color-text-in-terminal-applications-in-unix
 #define RED		"\x1B[31m"
@@ -71,15 +72,40 @@ int main (void){
         low = (int*)malloc(sizeof(int) * (weeksNumber));
         high = (int*)malloc(sizeof(int) * (weeksNumber));
 
-        for(i = 0; i < weeksNumber; i++)
+        if(RANDOM_PICK)
         {
-            printf("Please enter value of low skill job for week %d: ", i+1);
-            scanf("%d", &low[i]);
+            for(i = 0; i < weeksNumber; i++)
+            {
+                low[i] = rand() % 41 + 10;
+            }
+            for(i = 0; i < weeksNumber; i++)
+            {
+                high[i] = rand() % 41 + 90;
+            }
+
+            // printing the randomly generated job categories
+            for(i = 0; i < weeksNumber; i++)
+            {
+                printf("low[%d] = %d\n", i, low[i]);
+            }
+            printf("\n");
+            for(i = 0; i < weeksNumber; i++)
+            {
+                printf("high[%d] = %d\n", i, high[i]);
+            }
         }
-        for(i = 0; i < weeksNumber; i++)
+        else
         {
-            printf("Please enter value of high skill job for week %d: ", i+1);
-            scanf("%d", &high[i]);
+            for(i = 0; i < weeksNumber; i++)
+            {
+                printf("Please enter value of low skill job for week %d: ", i+1);
+                scanf("%d", &low[i]);
+            }
+            for(i = 0; i < weeksNumber; i++)
+            {
+                printf("Please enter value of high skill job for week %d: ", i+1);
+                scanf("%d", &high[i]);
+            }
         }
     }
 
@@ -139,7 +165,7 @@ int main (void){
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-    printf("time of execution: %f seconds\n", cpu_time_used);
+    printf("\n First-Fit algorith was executed in %f seconds\n", cpu_time_used);
 }
 
 int max(int a, int b)
